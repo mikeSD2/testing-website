@@ -133,63 +133,70 @@
             });
         </script>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const dragButton = document.getElementById("drag-button");
-            const contentContainer =
-                document.getElementById("content-container");
-            const parentDiv = dragButton.parentElement;
-            const overlay = document.getElementById("overlay");
-            let isDragging = false;
-            let startY = 0;
-            let startHeight = 0;
-            const minHeight = 50;
-            const maxHeight = window.innerHeight - 50;
-            function updateButtonState() {
-                const currentHeight = parentDiv.offsetHeight;
-                const opacity =
-                    currentHeight === minHeight
-                        ? 0
-                        : Math.min(
-                              0.7,
-                              Math.max(
-                                  0.3,
-                                  (currentHeight - minHeight) /
-                                      (maxHeight - minHeight)
-                              )
-                          );
-                overlay.style.opacity = opacity;
-                overlay.style.pointerEvents = opacity > 0 ? "auto" : "none";
-            }
-            dragButton.addEventListener("pointerdown", function (event) {
-                isDragging = true;
-                startY = event.clientY;
-                startHeight = parentDiv.offsetHeight;
-                document.body.style.userSelect = "none";
-            });
+   <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dragButton = document.getElementById("drag-button");
+        const contentContainer = document.getElementById("content-container");
+        const parentDiv = dragButton.parentElement;
+        const overlay = document.getElementById("overlay");
 
-            document.addEventListener("pointermove", function (event) {
-                if (!isDragging) return;
-                const deltaY = event.clientY - startY;
-                let newHeight = startHeight - deltaY;
-                newHeight = Math.min(maxHeight, Math.max(minHeight, newHeight));
-                parentDiv.style.height = `${newHeight}px`;
-                updateButtonState();
-            });
+        let isDragging = false;
+        let startY = 0;
+        let startHeight = 0;
+        const minHeight = 50;
+        const maxHeight = window.innerHeight - 50;
 
-            document.addEventListener("pointerup", function () {
-                if (isDragging) {
-                    isDragging = false;
-                    document.body.style.userSelect = "";
-                }
-            });
-            overlay.addEventListener("click", function () {
-                parentDiv.style.height = `${minHeight}px`;
-                updateButtonState();
-            });
+        function updateButtonState() {
+            const currentHeight = parentDiv.offsetHeight;
+            const opacity =
+                currentHeight === minHeight
+                    ? 0
+                    : Math.min(
+                          0.7,
+                          Math.max(
+                              0.3,
+                              (currentHeight - minHeight) /
+                                  (maxHeight - minHeight)
+                          )
+                      );
+            overlay.style.opacity = opacity;
+            overlay.style.pointerEvents = opacity > 0 ? "auto" : "none";
+        }
+
+        dragButton.addEventListener("pointerdown", function (event) {
+            isDragging = true;
+            startY = event.clientY;
+            startHeight = parentDiv.offsetHeight;
+            document.body.style.userSelect = "none";
+            event.preventDefault(); // Отключение прокрутки
+        });
+
+        document.addEventListener("pointermove", function (event) {
+            if (!isDragging) return;
+            event.preventDefault(); // Отключение прокрутки
+            const deltaY = event.clientY - startY;
+            let newHeight = startHeight - deltaY;
+            newHeight = Math.min(maxHeight, Math.max(minHeight, newHeight));
+            parentDiv.style.height = `${newHeight}px`;
             updateButtonState();
         });
-    </script>
+
+        document.addEventListener("pointerup", function () {
+            if (isDragging) {
+                isDragging = false;
+                document.body.style.userSelect = "";
+            }
+        });
+
+        overlay.addEventListener("click", function () {
+            parentDiv.style.height = `${minHeight}px`;
+            updateButtonState();
+        });
+
+        updateButtonState();
+    });
+</script>
+
 
     <style>
         #content-container {
