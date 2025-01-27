@@ -1,0 +1,207 @@
+<head>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<div>
+    <div
+        id="overlay"
+        class="fixed inset-0 bg-black opacity-30 transition-opacity duration-300 pointer-events-none"
+        style="opacity: 0.61367; pointer-events: auto"
+    ></div>
+    <div
+        class="flex absolute bottom-0 flex-col items-stretch bg-[#fcfaf8] w-full z-10"
+        style="height: 463px"
+    >
+        <button
+            id="drag-button"
+            class="flex h-5 w-full items-center justify-center cursor-pointer"
+        >
+            <div class="h-1 w-9 rounded-full bg-[#e8dace]"></div>
+        </button>
+
+        <div
+            id="content-container"
+            class="flex-1 overflow-hidden transition-all duration-300"
+        >
+            <div
+                class="flex gap-3 p-3 flex-wrap pr-4 bg-[#fcfaf8]"
+                style="position: sticky; top: 0"
+            >
+                <div
+                    class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-[#f4ece7] pl-4 pr-4 cursor-pointer"
+                >
+                    <p
+                        class="text-[#1c130d] text-sm font-medium leading-normal"
+                        data-category="restaurants"
+                    >
+                        Restaurants
+                    </p>
+                </div>
+                <div
+                    class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-[#f4ece7] pl-4 pr-4 cursor-pointer"
+                >
+                    <p
+                        class="text-[#1c130d] text-sm font-medium leading-normal"
+                        data-category="shops"
+                    >
+                        Shops
+                    </p>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <div class="p-4">
+                    <a
+                        href="http://localhost/Northborough/businesses/macdonalds/"
+                        class="block"
+                    >
+                        <div
+                            class="flex items-stretch justify-between gap-4 rounded-xl"
+                        >
+                            <div class="flex flex-col gap-1 flex-[2_2_0px]">
+                                <p
+                                    class="text-[#1c130d] text-base font-bold leading-tight"
+                                >
+                                    Macdonalds
+                                </p>
+                                <p
+                                    class="text-[#9c6d49] text-sm font-normal leading-normal"
+                                >
+                                    New American Restaurant
+                                </p>
+                            </div>
+                            <div
+                                class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl flex-1"
+                                style="
+                                    background-image: url('http://localhost/Northborough/wp-content/uploads/2025/01/bk0.png');
+                                "
+                            ></div>
+                        </div>
+                    </a>
+                </div>
+                <div class="p-4">
+                    <a
+                        href="http://localhost/Northborough/businesses/krua-thai/"
+                        class="block"
+                    >
+                        <div
+                            class="flex items-stretch justify-between gap-4 rounded-xl"
+                        >
+                            <div class="flex flex-col gap-1 flex-[2_2_0px]">
+                                <p
+                                    class="text-[#1c130d] text-base font-bold leading-tight"
+                                >
+                                    Krua Thai
+                                </p>
+                                <p
+                                    class="text-[#9c6d49] text-sm font-normal leading-normal"
+                                >
+                                    Asian Fusion Restaurant
+                                </p>
+                            </div>
+                            <div
+                                class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl flex-1"
+                                style="
+                                    background-image: url('http://localhost/Northborough/wp-content/uploads/2025/01/8cd362e3-111a-4666-8ac9-fe6605398c60.png');
+                                "
+                            ></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const categoryButtons =
+                    document.querySelectorAll("[data-category]");
+                categoryButtons.forEach((button) => {
+                    button.addEventListener("click", function () {
+                        const category = this.getAttribute("data-category");
+                        let url = new URL(window.location.href);
+
+                        if (category === "all") {
+                            url.searchParams.delete("category");
+                        } else {
+                            url.searchParams.set("category", category);
+                        }
+
+                        window.location.href = url.toString();
+                    });
+                });
+            });
+        </script>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const dragButton = document.getElementById("drag-button");
+            const contentContainer =
+                document.getElementById("content-container");
+            const parentDiv = dragButton.parentElement;
+            const overlay = document.getElementById("overlay");
+            let isDragging = false;
+            let startY = 0;
+            let startHeight = 0;
+            const minHeight = 50;
+            const maxHeight = window.innerHeight - 50;
+            function updateButtonState() {
+                const currentHeight = parentDiv.offsetHeight;
+                const opacity =
+                    currentHeight === minHeight
+                        ? 0
+                        : Math.min(
+                              0.7,
+                              Math.max(
+                                  0.3,
+                                  (currentHeight - minHeight) /
+                                      (maxHeight - minHeight)
+                              )
+                          );
+                overlay.style.opacity = opacity;
+                overlay.style.pointerEvents = opacity > 0 ? "auto" : "none";
+            }
+            dragButton.addEventListener("pointerdown", function (event) {
+                isDragging = true;
+                startY = event.clientY;
+                startHeight = parentDiv.offsetHeight;
+                document.body.style.userSelect = "none";
+            });
+
+            document.addEventListener("pointermove", function (event) {
+                if (!isDragging) return;
+                const deltaY = event.clientY - startY;
+                let newHeight = startHeight - deltaY;
+                newHeight = Math.min(maxHeight, Math.max(minHeight, newHeight));
+                parentDiv.style.height = `${newHeight}px`;
+                updateButtonState();
+            });
+
+            document.addEventListener("pointerup", function () {
+                if (isDragging) {
+                    isDragging = false;
+                    document.body.style.userSelect = "";
+                }
+            });
+            overlay.addEventListener("click", function () {
+                parentDiv.style.height = `${minHeight}px`;
+                updateButtonState();
+            });
+            updateButtonState();
+        });
+    </script>
+
+    <style>
+        #content-container {
+            overflow-y: auto;
+        }
+        #content-container::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+        #overlay {
+            z-index: 10;
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</div>
